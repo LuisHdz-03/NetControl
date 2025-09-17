@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist')
 CORS(app)
 
 # Configuración SQLite
@@ -54,6 +55,20 @@ def add_item():
     db.session.commit()
     return jsonify({"message": "Item agregado con éxito"}), 201
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    # Ignorar rutas de API
+    if path.startswith('items'):
+        return "Not Found", 404
+
+    # Servir archivo si existe físicamente
+    file_path = os.path.join(app.static_folder, path)
+    if path != "" and os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+
+    # Si no existe, devolver index.html para SPA
+    return send_from_directory(app.static_folder, 'index.html')
 
 #Listar todos los items
 @app.route('/items', methods=['GET'])
