@@ -40,10 +40,9 @@ const Sidebar = () => {
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
-                                isActive
-                                    ? "bg-[#168F27] text-white font-bold"
-                                    : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
                             }`
                         }
                     >
@@ -57,10 +56,9 @@ const Sidebar = () => {
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
-                                isActive
-                                    ? "bg-[#168F27] text-white font-bold"
-                                    : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
                             }`
                         }
                     >
@@ -74,10 +72,9 @@ const Sidebar = () => {
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
-                                isActive
-                                    ? "bg-[#168F27] text-white font-bold"
-                                    : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
                             }`
                         }
                     >
@@ -92,10 +89,9 @@ const Sidebar = () => {
                     <NavLink
                         to="/inventory"
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
-                                isActive
-                                    ? "bg-[#168F27] text-white font-bold"
-                                    : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
                             }`
                         }
                     >
@@ -112,10 +108,26 @@ const Sidebar = () => {
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
-                                isActive
-                                    ? "bg-[#168F27] text-white font-bold"
-                                    : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+                            }`
+                        }
+                    >
+                        <svg className="h-6 w-6 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <circle cx="12" cy="11" r="4" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 21c0-3 3-5 6-5s6 2 6 5 M19 8v4 M17 10h4" />
+                        </svg>
+                        Técnicos
+                    </NavLink>
+
+                    <NavLink
+                        to="/"
+                        className={({ isActive }) =>
+                            `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
+                                ? "bg-[#168F27] text-white font-bold"
+                                : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
                             }`
                         }
                     >
