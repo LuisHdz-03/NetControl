@@ -91,7 +91,7 @@ const Sidebar = () => {
                     </NavLink>
 
                     <NavLink
-                        to="/"
+                        to="/technicians"
                         className={({ isActive }) =>
                             `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${isActive
                                 ? "bg-[#168F27] text-white font-bold"

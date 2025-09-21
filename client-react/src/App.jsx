@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Home from './pages/Home'
 import Inventory from './pages/Inventory';
+import Technicians from './pages/Technicians';
 import "./App.css"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/technicians" element={<Technicians />} />
           </Route>
         </Routes>
         <ToastContainer
