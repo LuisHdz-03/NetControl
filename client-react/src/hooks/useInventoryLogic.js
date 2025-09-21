@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useInventory as useInventoryAPI } from "./useInventory";
+import { toast } from "react-toastify";
 
 export const useInventoryLogic = () => {
     // --- API Data Hook ---
@@ -31,12 +32,30 @@ export const useInventoryLogic = () => {
 
     const agregarInventario = async (e) => {
         e.preventDefault();
-        await add(newItem);
-        setNewItem({ nombre: "", modelo: "", noSerie: "", cantidadTotal: "" });
-        setActiveTab("activar");
-    };
+        await toast.promise(
+            add(newItem),
+            {
+                pending: 'Agregando dispositivo...',
+                success: '¡Dispositivo agregado con éxito!',
+                error: {
+                    render({ data }) {
+                        return data.message || "Error desconocido al agregar el dispositivo";
+                    }
+                }
+            }
+        );
+    }
 
-    const eliminarDispositivo = (id) => remove(id);
+    const eliminarDispositivo = async (id) => {
+        await toast.promise(
+            remove(id), // remove viene de useInventory
+            {
+                pending: "Eliminando dispositivo...",
+                success: "¡Dispositivo eliminado con éxito!",
+                error: "Error al eliminar!",
+            }
+        );
+    };
 
     // --- Configuracion para el Modal de Activación ---
     const handleActivateClick = (item) => {
@@ -49,7 +68,14 @@ export const useInventoryLogic = () => {
             alert("Por favor, ingresa una ubicación.");
             return;
         }
-        await activate(unitToActivate.id, unitToActivate.ubicacion);
+
+        await toast.promise(
+            activate(unitToActivate.id, unitToActivate.ubicacion), {
+            pending: "Activando unidad...",
+            success: "¡Unidad activada!",
+            error: "Error al activar la unidad"
+        }
+        );
         setActivationModalOpen(false);
     };
 
@@ -68,23 +94,48 @@ export const useInventoryLogic = () => {
 
         const { id, type, ...data } = editingItem;
 
-        if (type === 'inventory') {
-            const inventoryData = {
-                nombre: data.nombre,
-                modelo: data.modelo,
-                noSerie: data.noSerie,
-                cantidadTotal: data.cantidadTotal
-            };
-            await update(id, inventoryData);
-        } else if (type === 'activeUnit') {
-            await updateActive(id, { ubicacion: data.ubicacion });
+        try {
+            if (type === 'inventory') {
+                const inventoryData = {
+                    nombre: data.nombre,
+                    modelo: data.modelo,
+                    noSerie: data.noSerie,
+                    cantidadTotal: data.cantidadTotal
+                };
+                await toast.promise(
+                    update(id, inventoryData),
+                    {
+                        pending: "Actualizando dispositivo...",
+                        success: "¡Actualización realizada con éxito!",
+                        error: "Error al actualizar"
+                    }
+                );
+            } else if (type === 'activeUnit') {
+                await toast.promise(
+                    updateActive(id, { ubicacion: data.ubicacion }),
+                    {
+                        pending: "Actualizando ubicación...",
+                        success: "¡Se actualizó la ubicación!",
+                        error: "Error al actualizar ubicación"
+                    }
+                );
+            }
+        } catch (error) {
+            toast.error("Error desconocido");
+        } finally {
+            setUpdateModalOpen(false);
         }
-
-        setUpdateModalOpen(false);
     };
 
     const handleDesactivar = async (id) => {
-        await deactivate(id); 
+        await toast.promise(
+            deactivate(id),
+            {
+                pending: "Desactivando dispositivo...",
+                success: "¡Dispositivo desactivado con éxito!",
+                error: "Error al desactivar!",
+            }
+        );
         setActiveTab("activar");
     };
 

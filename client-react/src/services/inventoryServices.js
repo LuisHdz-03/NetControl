@@ -13,8 +13,11 @@ export async function addItem(item) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item),
   });
-  if (!res.ok) throw new Error("Error al agregar dispositivo");
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Error al agregar dispositivo");
+  }
+  return data;
 }
 
 export async function deleteItem(id) {
@@ -42,8 +45,14 @@ export async function activateUnit(inventario_id, ubicacion) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ inventario_id, ubicacion }),
   });
-  if (!res.ok) throw new Error("Error al activar unidad");
-  return res.json();
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Error al activar unidad");
+  }
+
+  return data;
 }
 
 export async function deactivateUnit(unidad_id) {

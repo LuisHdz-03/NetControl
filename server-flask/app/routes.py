@@ -12,8 +12,8 @@ main = Blueprint("main", __name__)
 
 @main.route("/inventory", methods=["POST"])
 def add_item():
-    data = request.json
-    return jsonify(create_inventario(data)), 201
+    data = request.get_json()
+    return create_inventario(data)
 
 @main.route("/inventory", methods=["GET"])
 def get_items():

@@ -1,16 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Layout from './components/Layout';
-//import Loading from './components/Loading';
 import Home from './pages/Home'
 import Inventory from './pages/Inventory';
 import "./App.css"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div style={{ fontFamily: "DRAGON HUNTER, sans-serif" }}>
+    <div>
       <BrowserRouter>
         {/*
         {!isLoaded ? (
@@ -23,7 +24,18 @@ const App = () => {
             <Route path="/inventory" element={<Inventory />} />
           </Route>
         </Routes>
-        {/*)}*/}
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </BrowserRouter>
     </div>
   );

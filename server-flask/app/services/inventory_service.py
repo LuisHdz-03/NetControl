@@ -1,30 +1,44 @@
 from app.models.inventory_model import Inventario, UnidadActiva
 from app import db
+from flask import jsonify
+from sqlalchemy.exc import IntegrityError
 
 # --------------------------
 # Inventario
 # --------------------------
 def create_inventario(data):
-    nuevo_item = Inventario(
-        nombre=data.get("nombre"),
-        modelo=data.get("modelo"),
-        noSerie=data.get("noSerie"),
-        cantidadTotal=data.get("cantidadTotal", 0)
-    )
-    db.session.add(nuevo_item)
-    db.session.commit()
-    return nuevo_item.serialize()
+    try:
+        nuevo_item = Inventario(
+            nombre=data.get("nombre"),
+            modelo=data.get("modelo"),
+            noSerie=data.get("noSerie"),
+            cantidadTotal=data.get("cantidadTotal", 0)
+        )
+        db.session.add(nuevo_item)
+        db.session.commit()
+        return jsonify(nuevo_item.serialize()), 201  # éxito
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Ya existe un dispositivo con este modelo y número de serie"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 def list_inventario():
     return [i.serialize() for i in Inventario.query.all()]
 
 def delete_inventario(item_id):
-    item = Inventario.query.get(item_id)
-    if not item:
-        return {"error": "Inventario no encontrado"}, 404
-    db.session.delete(item)
-    db.session.commit()
-    return {"message": "Inventario eliminado"}
+    try:
+        item = Inventario.query.get(item_id)
+        if not item:
+            return {"error": "Inventario no encontrado"}, 404
+
+        db.session.delete(item)
+        db.session.commit()
+        return {"message": f"Inventario '{item.nombre}' eliminado", "id": item.id}, 200
+    except Exception as e:
+        db.session.rollback()
+        return {"error": str(e)}, 500
 
 def update_inventario(item_id, data):
     item = Inventario.query.get(item_id)

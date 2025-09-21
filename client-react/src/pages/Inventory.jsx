@@ -17,14 +17,14 @@ const Inventory = () => {
     } = useInventoryLogic();
 
     return (
-        <main className="container mx-auto p-4 lineaSeparadora font-sans">
+        <main className="container mx-auto px-4">
             {/* Título */}
             <div className="text-center my-4 animacion">
                 <h1 className="text-3xl font-bold text-white">Inventario</h1>
             </div>
 
             {/* Pestañas */}
-            <div className="flex justify-center mb-6 border-b border-white">
+            <div className="flex flex-wrap justify-center mb-6 border-b border-white">
                 <button
                     className={`cursor-pointer relative px-6 py-2 font-semibold -mb-px ${activeTab === 'vista' ? 'text-[#168F27] border-b-4 border-[#168F27]' : 'text-white hover:text-[#168F27]'} transition-colors`}
                     onClick={() => setActiveTab('vista')}
@@ -48,7 +48,7 @@ const Inventory = () => {
             {/* Contenido de la pestaña: Vista de Dospositivos activos */}
             {activeTab === 'vista' && (
                 <>
-                    <div className="flex flex-col md:flex-row gap-4 mb-4 animacion">
+                    <div className="flex flex-col md:flex-row gap-4 mb-4">
                         <div className="bg-gray-300 shadow-md rounded-xl p-4 flex items-center justify-center gap-3 flex-1">
                             <FiCheckCircle className="text-green-600 text-3xl" />
                             <p className="text-black font-medium text-lg text-center">Dispositivos Activados</p>
@@ -62,7 +62,7 @@ const Inventory = () => {
                         </div>
                     </div>
                     {loading ? (<p className="text-center text-white">Cargando...</p>) : filteredActiveUnits.length === 0 ? (<p className="text-center text-white text-lg">No hay dispositivos activados</p>) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animacion">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {filteredActiveUnits.map(item => (
                                 <div key={item.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-green-500/40 hover:shadow-lg hover:shadow-green-500/10 hover:-translate-y-1">
                                     <BiChip className="absolute inset-0 w-full h-full text-green-500/10 z-0" />
@@ -99,7 +99,7 @@ const Inventory = () => {
             {/* Contenido de la pestaña: Activar/Desactivar */}
             {activeTab === 'activar' && (
                 loading ? (<p className="text-center text-white">Cargando...</p>) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animacion">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {filteredInventoryItems.map(item => (
                             <div key={item.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">
                                 <BiChip className="absolute inset-0 w-full h-full text-green-500/10 z-0" />

@@ -1,12 +1,17 @@
 from app import db
+from sqlalchemy import UniqueConstraint
 
 class Inventario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     modelo = db.Column(db.String(100), nullable=False)
-    noSerie = db.Column(db.String(100), unique=True, nullable=False)
+    noSerie = db.Column(db.String(100), nullable=False)
     cantidadTotal = db.Column(db.Integer, nullable=False, default=0)
     unidades_activas = db.relationship("UnidadActiva", back_populates="inventario", lazy=True)
+
+    __table_args__ = (
+        UniqueConstraint("modelo", "noSerie", name="uq_modelo_noserie"),
+    )
 
     def cantidad_activa(self):
         return len(self.unidades_activas)

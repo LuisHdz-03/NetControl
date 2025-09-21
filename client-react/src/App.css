@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Inter';
+  src: url('./assets/font/Inter_18pt-ExtraLight.ttf') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 body{
     background-color: #121212;
