@@ -28,7 +28,7 @@ export function useInventory() {
     }, [fetchData]);
 
 
-    // --- Las funciones de acción ahora solo llaman a la API y luego refrescan ---
+    // --- Las funciones de acción solo llaman a la API y luego refrescan ---
     const add = async (item) => {
         await addItem(item);
         fetchData(); // Refresca todos los datos para mantener la consistencia

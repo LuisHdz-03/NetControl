@@ -36,6 +36,10 @@ def delete_inventario(item_id):
         db.session.delete(item)
         db.session.commit()
         return {"message": f"Inventario '{item.nombre}' eliminado", "id": item.id}, 200
+
+    except IntegrityError as e:
+        db.session.rollback()
+        return {"error": "No se puede eliminar el inventario porque tiene relaciones activas"}, 400
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500

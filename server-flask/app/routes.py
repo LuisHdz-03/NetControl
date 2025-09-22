@@ -4,6 +4,10 @@ from app.services.inventory_service import (
     activar_unidad, desactivar_unidad, list_unidades_activas,
     update_unidad_activa, update_inventario
 )
+from app.services.technicians_service import (
+    create_tecnico, get_all_tecnicos, get_tecnico_by_id,
+    update_tecnico, delete_tecnico
+)
 
 main = Blueprint("main", __name__)
 
@@ -56,3 +60,37 @@ def update_unidad_activa_route(unidad_id):
      return jsonify(result)
  
  # ---------------------------
+ 
+ # ----- Rutas de tecnicos
+@main.route("/technicians", methods=["POST"])
+def add_tecnico():
+    data = request.get_json()
+    tecnico = create_tecnico(data)
+    return jsonify(tecnico.serialize()), 201
+
+@main.route("/technicians", methods=["GET"])
+def list_tecnicos():
+    tecnicos = get_all_tecnicos()
+    return jsonify([t.serialize() for t in tecnicos]), 200
+
+@main.route("/technicians/<int:tecnico_id>", methods=["GET"])
+def get_tecnico(tecnico_id):
+    tecnico = get_tecnico_by_id(tecnico_id)
+    if not tecnico:
+        return jsonify({"error": "Técnico no encontrado"}), 404
+    return jsonify(tecnico.serialize()), 200
+
+@main.route("/technicians/<int:tecnico_id>", methods=["PUT"])
+def update_tecnico_route(tecnico_id):
+    data = request.get_json()
+    tecnico = update_tecnico(tecnico_id, data)
+    if not tecnico:
+        return jsonify({"error": "Técnico no encontrado"}), 404
+    return jsonify(tecnico.serialize()), 200
+
+@main.route("/technicians/<int:tecnico_id>", methods=["DELETE"])
+def delete_tecnico_route(tecnico_id):
+    tecnico = delete_tecnico(tecnico_id)
+    if not tecnico:
+        return jsonify({"error": "Técnico no encontrado"}), 404
+    return jsonify({"message": "Técnico eliminado correctamente"}), 200

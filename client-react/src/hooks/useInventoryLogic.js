@@ -32,8 +32,15 @@ export const useInventoryLogic = () => {
 
     const agregarInventario = async (e) => {
         e.preventDefault();
+        const cleanedItem = {
+            nombre: newItem.nombre.trim(),
+            modelo: newItem.modelo.trim(),
+            noSerie: newItem.noSerie.trim(),
+            cantidadTotal: newItem.cantidadTotal
+        };
+
         await toast.promise(
-            add(newItem),
+            add(cleanedItem),
             {
                 pending: 'Agregando dispositivo...',
                 success: '¡Dispositivo agregado con éxito!',
@@ -44,15 +51,21 @@ export const useInventoryLogic = () => {
                 }
             }
         );
-    }
+        setNewItem({ nombre: "", modelo: "", noSerie: "", cantidadTotal: "" });
+        setActiveTab("activar");
+    };
 
     const eliminarDispositivo = async (id) => {
         await toast.promise(
-            remove(id), // remove viene de useInventory
+            remove(id),
             {
                 pending: "Eliminando dispositivo...",
                 success: "¡Dispositivo eliminado con éxito!",
-                error: "Error al eliminar!",
+                error: {
+                    render({ data }) {
+                        return data.message || "Error desconocido al eliminar el dispositivo";
+                    }
+                }
             }
         );
     };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiWifi, FiCheckCircle, FiSearch, FiX } from 'react-icons/fi';
+import { FiWifi, FiCheckCircle, FiSearch, FiX, FiEdit } from 'react-icons/fi';
 import { BiChip } from "react-icons/bi";
 import { useInventoryLogic } from "../hooks/useInventoryLogic.js";
 
@@ -80,7 +80,7 @@ const Inventory = () => {
                                             <p><strong className="font-medium text-black">Ubicación:</strong> {item.ubicacion}</p>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
-                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => openUpdateModal(item, 'activeUnit')}>Actualizar</button>
+                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'activeUnit')}><FiEdit />Actualizar</button>
                                             <button className="w-full bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => handleDesactivar(item.id)}>Desactivar</button>
                                         </div>
                                     </div>
@@ -98,7 +98,8 @@ const Inventory = () => {
 
             {/* Contenido de la pestaña: Activar/Desactivar */}
             {activeTab === 'activar' && (
-                loading ? (<p className="text-center text-white">Cargando...</p>) : (
+                loading ? (
+                    <p className="text-center text-white">Cargando...</p>) : filteredInventoryItems.length === 0 ? (<p className="text-center text-white text-lg">Sin dispositivos</p>) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {filteredInventoryItems.map(item => (
                             <div key={item.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">
@@ -116,7 +117,7 @@ const Inventory = () => {
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
                                         <button onClick={() => handleActivateClick(item)} className="w-full bg-[#168F27] text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer" disabled={item.cantidadInactiva <= 0}>Activar</button>
-                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => openUpdateModal(item, 'inventory')}>Actualizar</button>
+                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'inventory')}><FiEdit />Actualizar</button>
                                         <button className="w-full bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => eliminarDispositivo(item.id)}>Eliminar</button>
                                     </div>
                                 </div>

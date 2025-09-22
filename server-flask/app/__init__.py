@@ -19,6 +19,8 @@ def create_app():
     # Crear tablas si no existen
     with app.app_context():
         from .models.inventory_model import Inventario, UnidadActiva
+        from .models.failures_model import Fallas
+        from .models.technicians_model import Tecnicos
         db.create_all()
 
     return app

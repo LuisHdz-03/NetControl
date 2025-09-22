@@ -22,8 +22,11 @@ export async function addItem(item) {
 
 export async function deleteItem(id) {
   const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Error al eliminar dispositivo");
-  return res.json();
+  const data = await res.json(); 
+  if (!res.ok) {
+    throw new Error(data.error || "Error al eliminar dispositivo");
+  }
+  return data;
 }
 
 export async function updateItem(id, data) {
