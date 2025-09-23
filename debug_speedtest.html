@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug SpeedTest APIs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug SpeedTest APIs</h1>
+    
+    <div>
+        <button onclick="testDebug()">Test Debug</button>
+        <button onclick="testLatest()">Test Latest</button>
+        <button onclick="testHistory()">Test History</button>
+        <button onclick="testAverages()">Test Averages</button>
+        <button onclick="testStart()">Start SpeedTest</button>
+        <button onclick="testStatus()">Test Status</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const baseURL = 'http://localhost:5000';
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(title, data, isError = false) {
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+
+        async function testDebug() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/debug`);
+                const data = await response.json();
+                addResult('🛠️ Debug Test', data);
+            } catch (error) {
+                addResult('❌ Debug Error', error.message, true);
+            }
+        }
+
+        async function testLatest() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/latest`);
+                const data = await response.json();
+                addResult('📊 Latest Test', data);
+            } catch (error) {
+                addResult('❌ Latest Error', error.message, true);
+            }
+        }
+
+        async function testHistory() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/history?limit=10`);
+                const data = await response.json();
+                addResult('📚 History Test', data);
+            } catch (error) {
+                addResult('❌ History Error', error.message, true);
+            }
+        }
+
+        async function testAverages() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/averages?days=7`);
+                const data = await response.json();
+                addResult('📈 Averages Test', data);
+            } catch (error) {
+                addResult('❌ Averages Error', error.message, true);
+            }
+        }
+
+        async function testStart() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                addResult('🚀 Start Test', data);
+            } catch (error) {
+                addResult('❌ Start Error', error.message, true);
+            }
+        }
+
+        async function testStatus() {
+            try {
+                const response = await fetch(`${baseURL}/speedtest/status`);
+                const data = await response.json();
+                addResult('⏳ Status Test', data);
+            } catch (error) {
+                addResult('❌ Status Error', error.message, true);
+            }
+        }
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            testDebug();
+            testLatest();
+            testHistory();
+            testAverages();
+        });
+    </script>
+</body>
+</html>

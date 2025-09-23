@@ -19,11 +19,22 @@ export const useInventoryLogic = () => {
     // --- Estados de la UI ---
     const [activeTab, setActiveTab] = useState("vista");
     const [search, setSearch] = useState("");
-    const [newItem, setNewItem] = useState({ nombre: "", modelo: "", noSerie: "", cantidadTotal: "" });
+    const [newItem, setNewItem] = useState({ nombre: "", modelo: "", cantidadTotal: "" });
+    
+    // Estados para el registro múltiple de números de serie
+    const [isSerialModalOpen, setSerialModalOpen] = useState(false);
+    const [serialNumbers, setSerialNumbers] = useState([]);
+    const [tempDeviceData, setTempDeviceData] = useState(null);
 
     // --- Estados para los Modales ---
     const [isActivationModalOpen, setActivationModalOpen] = useState(false);
     const [unitToActivate, setUnitToActivate] = useState(null);
+    
+    // Estados para el modal de selección de dispositivo específico
+    const [isDeviceSelectionModalOpen, setDeviceSelectionModalOpen] = useState(false);
+    const [selectedDeviceGroup, setSelectedDeviceGroup] = useState(null);
+    const [selectedDeviceSerial, setSelectedDeviceSerial] = useState('');
+    const [deviceLocation, setDeviceLocation] = useState('');
     const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
@@ -32,27 +43,92 @@ export const useInventoryLogic = () => {
 
     const agregarInventario = async (e) => {
         e.preventDefault();
-        const cleanedItem = {
+        
+        // Validar que la cantidad sea válida
+        const cantidad = parseInt(newItem.cantidadTotal);
+        if (!cantidad || cantidad < 1) {
+            toast.error("La cantidad debe ser mayor a 0");
+            return;
+        }
+
+        // Guardar datos temporales y abrir modal de números de serie
+        setTempDeviceData({
             nombre: newItem.nombre.trim(),
             modelo: newItem.modelo.trim(),
-            noSerie: newItem.noSerie.trim(),
-            cantidadTotal: newItem.cantidadTotal
-        };
+            cantidadTotal: cantidad
+        });
+        
+        // Inicializar array de números de serie vacíos
+        setSerialNumbers(Array(cantidad).fill(''));
+        setSerialModalOpen(true);
+    };
 
-        await toast.promise(
-            add(cleanedItem),
-            {
-                pending: 'Agregando dispositivo...',
-                success: '¡Dispositivo agregado con éxito!',
-                error: {
-                    render({ data }) {
-                        return data.message || "Error desconocido al agregar el dispositivo";
-                    }
+    // Función para agregar múltiples dispositivos con números de serie únicos
+    const confirmarRegistroMultiple = async () => {
+        // Validar que todos los números de serie estén llenos
+        const emptySerials = serialNumbers.some(serial => !serial.trim());
+        if (emptySerials) {
+            toast.error("Todos los números de serie son obligatorios");
+            return;
+        }
+
+        // Validar que no haya números de serie duplicados
+        const duplicates = serialNumbers.filter((item, index) => serialNumbers.indexOf(item) !== index);
+        if (duplicates.length > 0) {
+            toast.error("No puede haber números de serie duplicados");
+            return;
+        }
+
+        // Registrar cada dispositivo por separado
+        try {
+            const registrationPromises = serialNumbers.map(noSerie => 
+                add({
+                    nombre: tempDeviceData.nombre,
+                    modelo: tempDeviceData.modelo,
+                    noSerie: noSerie.trim(),
+                    cantidadTotal: 1 // Cada dispositivo es una unidad individual
+                })
+            );
+
+            await toast.promise(
+                Promise.all(registrationPromises),
+                {
+                    pending: `Registrando ${serialNumbers.length} dispositivos...`,
+                    success: `¡${serialNumbers.length} dispositivos registrados con éxito!`,
+                    error: "Error al registrar algunos dispositivos"
                 }
-            }
-        );
-        setNewItem({ nombre: "", modelo: "", noSerie: "", cantidadTotal: "" });
-        setActiveTab("activar");
+            );
+
+            // Limpiar estados
+            setNewItem({ nombre: "", modelo: "", cantidadTotal: "" });
+            setSerialNumbers([]);
+            setTempDeviceData(null);
+            setSerialModalOpen(false);
+            setActiveTab("activar");
+            
+        } catch (error) {
+            toast.error("Error al registrar los dispositivos");
+        }
+    };
+
+    // Función para manejar cambios en números de serie
+    const handleSerialChange = (index, value) => {
+        const newSerialNumbers = [...serialNumbers];
+        newSerialNumbers[index] = value;
+        setSerialNumbers(newSerialNumbers);
+    };
+
+    // Función para cancelar el registro múltiple
+    const cancelarRegistroMultiple = () => {
+        setSerialModalOpen(false);
+        setSerialNumbers([]);
+        setTempDeviceData(null);
+    };
+
+    // Función para cancelar el formulario de agregar dispositivos
+    const cancelarAgregarDispositivo = () => {
+        setNewItem({ nombre: "", modelo: "", cantidadTotal: "" });
+        setActiveTab("vista"); // Volver a la pestaña de vista
     };
 
     const eliminarDispositivo = async (id) => {
@@ -71,9 +147,19 @@ export const useInventoryLogic = () => {
     };
 
     // --- Configuracion para el Modal de Activación ---
-    const handleActivateClick = (item) => {
-        setUnitToActivate({ ...item, ubicacion: '' });
-        setActivationModalOpen(true);
+    const handleActivateClick = (deviceGroup) => {
+        // Filtrar solo dispositivos inactivos del grupo
+        const inactiveDevices = deviceGroup.devices.filter(device => device.cantidadInactiva > 0);
+        
+        if (inactiveDevices.length === 0) {
+            toast.error('No hay dispositivos disponibles para activar');
+            return;
+        }
+        
+        setSelectedDeviceGroup(deviceGroup);
+        setSelectedDeviceSerial('');
+        setDeviceLocation('');
+        setDeviceSelectionModalOpen(true);
     };
 
     const handleConfirmActivation = async () => {
@@ -90,6 +176,54 @@ export const useInventoryLogic = () => {
         }
         );
         setActivationModalOpen(false);
+    };
+    
+    // Nueva función para confirmar activación del dispositivo seleccionado
+    const handleConfirmDeviceActivation = async () => {
+        if (!selectedDeviceSerial) {
+            toast.error('Debe seleccionar un dispositivo');
+            return;
+        }
+        
+        if (!deviceLocation.trim()) {
+            toast.error('La ubicación es requerida');
+            return;
+        }
+        
+        // Encontrar el dispositivo específico por número de serie
+        const selectedDevice = selectedDeviceGroup.devices.find(device => device.noSerie === selectedDeviceSerial);
+        
+        if (!selectedDevice) {
+            toast.error('Dispositivo no encontrado');
+            return;
+        }
+        
+        await toast.promise(
+            activate(selectedDevice.id, deviceLocation.trim()),
+            {
+                pending: 'Activando dispositivo...',
+                success: '¡Dispositivo activado con éxito!',
+                error: {
+                    render({ data }) {
+                        return data.message || "Error desconocido al activar el dispositivo";
+                    }
+                }
+            }
+        );
+        
+        // Cerrar modal y limpiar estados
+        setDeviceSelectionModalOpen(false);
+        setSelectedDeviceGroup(null);
+        setSelectedDeviceSerial('');
+        setDeviceLocation('');
+    };
+    
+    // Función para cancelar selección de dispositivo
+    const cancelDeviceSelection = () => {
+        setDeviceSelectionModalOpen(false);
+        setSelectedDeviceGroup(null);
+        setSelectedDeviceSerial('');
+        setDeviceLocation('');
     };
 
     // --- Configuracion para el Modal de Actualización ---
@@ -154,6 +288,47 @@ export const useInventoryLogic = () => {
 
     // --- Datos Filtrados---
     const filteredActiveUnits = useMemo(() => activeUnits.filter(unit => Object.values(unit).some(val => String(val).toLowerCase().includes(search.toLowerCase()))), [activeUnits, search]);
+    
+    // Agrupar dispositivos solo por nombre
+    const groupedInventoryItems = useMemo(() => {
+        const filtered = items.filter(item => ['nombre', 'modelo'].some(prop => item[prop]?.toLowerCase().includes(search.toLowerCase())));
+        
+        const groups = filtered.reduce((acc, item) => {
+            // Usar solo el nombre como clave principal para agrupar
+            const key = item.nombre;
+            if (!acc[key]) {
+                acc[key] = {
+                    id: key,
+                    nombre: item.nombre,
+                    modelo: item.modelo, // Tomar el modelo del primer dispositivo
+                    devices: [],
+                    cantidadTotal: 0,
+                    cantidadActiva: 0,
+                    cantidadInactiva: 0,
+                    uniqueModels: new Set() // Rastrear modelos únicos dentro del grupo
+                };
+            }
+            
+            acc[key].devices.push(item);
+            acc[key].cantidadTotal += item.cantidadTotal;
+            acc[key].cantidadActiva += item.cantidadActiva;
+            acc[key].cantidadInactiva += item.cantidadInactiva;
+            acc[key].uniqueModels.add(item.modelo);
+            
+            return acc;
+        }, {});
+        
+        // Convertir a array y agregar información de modelos únicos
+        return Object.values(groups).map(group => ({
+            ...group,
+            displayName: group.nombre,
+            modelInfo: group.uniqueModels.size > 1 
+                ? `Múltiples modelos (${group.uniqueModels.size})`
+                : group.modelo,
+            uniqueModels: Array.from(group.uniqueModels) // Convertir Set a Array
+        }));
+    }, [items, search]);
+    
     const filteredInventoryItems = useMemo(() => items.filter(item => ['nombre', 'modelo', 'noSerie'].some(prop => item[prop]?.toLowerCase().includes(search.toLowerCase()))), [items, search]);
 
     // --- Exportación de todo lo necesario para la UI ---
@@ -169,6 +344,7 @@ export const useInventoryLogic = () => {
         eliminarDispositivo,
         filteredActiveUnits,
         filteredInventoryItems,
+        groupedInventoryItems,
         handleDesactivar,
 
         // Const para el modal de activación
@@ -185,6 +361,31 @@ export const useInventoryLogic = () => {
         editingItem,
         openUpdateModal,
         handleUpdateChange,
-        handleConfirmUpdate
+        handleConfirmUpdate,
+
+        // Estados para el modal de números de serie
+        isSerialModalOpen,
+        serialNumbers,
+        tempDeviceData,
+        // Funciones para el modal de números de serie
+        confirmarRegistroMultiple,
+        handleSerialChange,
+        cancelarRegistroMultiple,
+        // Función para cancelar agregar dispositivo
+        cancelarAgregarDispositivo,
+        
+        // Estados para agrupación de dispositivos
+        groupedInventoryItems,
+        
+        // Estados para selección de dispositivo específico
+        isDeviceSelectionModalOpen,
+        selectedDeviceGroup,
+        selectedDeviceSerial,
+        setSelectedDeviceSerial,
+        deviceLocation,
+        setDeviceLocation,
+        // Funciones para selección de dispositivo
+        handleConfirmDeviceActivation,
+        cancelDeviceSelection
     };
 };

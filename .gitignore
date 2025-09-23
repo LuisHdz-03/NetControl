@@ -1,3 +1,12 @@
 **/venv/
 **/node_modules/
 **/__pycache__/
+# Base de datos
+*.db
+*.sqlite
+*.sqlite3
+# Archivos de log
+*.log
+# Archivos temporales
+*.tmp
+*.temp

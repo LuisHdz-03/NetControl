@@ -16,14 +16,24 @@ export async function getFalla(id) {
 
 // Crear una nueva falla
 export async function addFalla(falla) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(falla),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Error al agregar la falla");
-  return data;
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(falla),
+    });
+    
+    const data = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(data.error || `Error ${res.status}: ${res.statusText}`);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("Error en servicio addFalla:", error);
+    throw error;
+  }
 }
 
 // Actualizar una falla existente

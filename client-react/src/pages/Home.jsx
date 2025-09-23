@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SpeedTest from '../components/SpeedTest';
+import SpeedTestChart from '../components/SpeedTestChart';
+import NetworkDetailsModal from '../components/NetworkDetailsModal';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const Home = () => {
-  const iniciarPrueba = () => {
-    // Aquí puedes colocar la lógica de la prueba de velocidad
-    console.log("Prueba iniciada");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { 
+    networkStatus, 
+    networkDetails, 
+    detailsLoading, 
+    fetchNetworkDetails, 
+    refreshNetworkStatus, 
+    getStatusColor, 
+    getStatusIcon 
+  } = useNetworkStatus();
+
+  const handleShowDetails = async () => {
+    setIsModalOpen(true);
+    await fetchNetworkDetails();
   };
 
   return (
@@ -15,34 +31,45 @@ const Home = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Tarjeta de ancho de banda */}
         <div className="flex justify-center">
-          <div className="bg-white shadow-lg rounded-lg w-full max-w-sm flex flex-col">
-            <div className="p-6 text-center flex flex-col flex-1">
-              <h5 className="text-xl font-semibold mb-2">ANCHO DE BANDA</h5>
-              <p className="mb-1">Velocidad de descarga: <span id="download">-</span> Mbps</p>
-              <p className="mb-1">Velocidad de subida: <span id="upload">-</span> Mbps</p>
-              <p className="mb-4">Ping: <span id="ping">-</span> ms</p>
-              <button 
-                className="bg-blue-600 text-white py-2 px-4 rounded mt-auto hover:bg-blue-700"
-                onClick={iniciarPrueba}
-              >
-                Iniciar Prueba
-              </button>
-            </div>
-          </div>
+          <SpeedTest />
         </div>
 
         {/* Tarjeta de estado de la red */}
         <div className="flex justify-center">
           <div className="bg-white shadow-lg rounded-lg w-full max-w-sm flex flex-col">
             <div className="p-6 text-center flex flex-col flex-1">
-              <h5 className="text-xl font-semibold mb-2">ESTADO DE LA RED</h5>
-              <p className="text-green-600 mb-4">ÓPTIMA</p>
-              <a 
-                href="Ajustes.html" 
-                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900"
+              <div className="flex items-center justify-between mb-2">
+                <h5 className="text-xl font-semibold">ESTADO DE LA RED</h5>
+                <button 
+                  onClick={refreshNetworkStatus}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                  disabled={networkStatus.loading}
+                >
+                  <FiRefreshCw className={networkStatus.loading ? 'animate-spin' : ''} size={20} />
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className="text-2xl">{getStatusIcon()}</span>
+                <p className={`${getStatusColor()} font-semibold`}>
+                  {networkStatus.status_text}
+                </p>
+              </div>
+              
+              {networkStatus.details && (
+                <div className="text-sm text-gray-600 mb-4 space-y-1">
+                  <p>Ping: {networkStatus.details.ping?.latency_avg || '--'} ms</p>
+                  <p>Pérdida: {networkStatus.details.ping?.packet_loss || '--'}%</p>
+                  <p>ISP: {networkStatus.isp || 'No disponible'}</p>
+                </div>
+              )}
+              
+              <button 
+                onClick={handleShowDetails}
+                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900 transition-colors cursor-pointer"
               >
-                Detalles
-              </a>
+                Ver Detalles
+              </button>
             </div>
           </div>
         </div>
@@ -79,6 +106,19 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* Gráfico del historial de velocidad */}
+      <div className="mt-8 flex justify-center">
+        <SpeedTestChart />
+      </div>
+
+      {/* Modal de detalles de red */}
+      <NetworkDetailsModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        details={networkDetails}
+        loading={detailsLoading}
+      />
     </main>
   );
 };

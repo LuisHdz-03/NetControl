@@ -28,8 +28,13 @@ export function useFallas() {
 
     // --- Funciones de acción ---
     const add = async (falla) => {
-        await addFalla(falla);
-        fetchData();
+        try {
+            const result = await addFalla(falla);
+            await fetchData();
+        } catch (error) {
+            console.error("Error al agregar falla:", error);
+            throw error; // Re-lanzar el error para que lo maneje el componente
+        }
     };
 
     const remove = async (id) => {

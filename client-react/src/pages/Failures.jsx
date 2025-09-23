@@ -41,12 +41,30 @@ const Failures = () => {
 
     const handleAdd = async (e) => {
         e.preventDefault();
-        await add(newFalla);
-        setNewFalla({
-            descripcion: "", cliente: "", prioridad: "media", notas: "",
-            tecnico_id: "", unidad_id: "",
-        });
-        setActiveTab("vista");
+        
+        // Validación básica
+        if (!newFalla.descripcion.trim()) {
+            alert("La descripción es obligatoria");
+            return;
+        }
+        
+        if (!newFalla.cliente.trim()) {
+            alert("El nombre del cliente es obligatorio");
+            return;
+        }
+        
+        try {
+            await add(newFalla);
+            
+            setNewFalla({
+                descripcion: "", cliente: "", prioridad: "media", notas: "",
+                tecnico_id: "", unidad_id: "",
+            });
+            setActiveTab("vista");
+        } catch (error) {
+            console.error("Error al agregar falla:", error);
+            alert("Error al agregar la falla: " + error.message);
+        }
     };
 
     const handleUpdate = async (e) => {

@@ -13,7 +13,16 @@ const Inventory = () => {
         handleActivateClick, handleConfirmActivation,
         // Props para el nuevo modal de actualización
         isUpdateModalOpen, setUpdateModalOpen, editingItem,
-        openUpdateModal, handleUpdateChange, handleConfirmUpdate
+        openUpdateModal, handleUpdateChange, handleConfirmUpdate,
+        // Props para el modal de números de serie
+        isSerialModalOpen, serialNumbers, tempDeviceData,
+        confirmarRegistroMultiple, handleSerialChange, cancelarRegistroMultiple,
+        // Función para cancelar agregar dispositivo
+        cancelarAgregarDispositivo,
+        // Props para dispositivos agrupados y selección
+        groupedInventoryItems, isDeviceSelectionModalOpen, selectedDeviceGroup,
+        selectedDeviceSerial, setSelectedDeviceSerial, deviceLocation, setDeviceLocation,
+        handleConfirmDeviceActivation, cancelDeviceSelection
     } = useInventoryLogic();
 
     return (
@@ -93,32 +102,92 @@ const Inventory = () => {
 
             {/* Contenido de la pestaña: Agregar Dispositivo */}
             {activeTab === 'agregar' && (
-                <div className="animacion max-w-md mx-auto"><form onSubmit={agregarInventario} className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow-lg relative"><div className="flex justify-center"> <FiWifi className="text-6xl text-green-600" /> </div><div className="text-center mb-4"><h2 className="text-2xl font-bold text-gray-800">Agregar Nuevo Dispositivo</h2><p className="text-gray-500 text-sm">Llena los datos a continuación</p></div><input type="text" name="nombre" value={newItem.nombre} onChange={handleAddChange} placeholder="Nombre" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required /><input type="text" name="modelo" value={newItem.modelo} onChange={handleAddChange} placeholder="Modelo" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required /><input type="text" name="noSerie" value={newItem.noSerie} onChange={handleAddChange} placeholder="No. Serie" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required /><input type="number" name="cantidadTotal" value={newItem.cantidadTotal} onChange={handleAddChange} placeholder="Cantidad" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required /><div className="flex justify-end mt-2"><button type="submit" className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 transition-colors cursor-pointer">Agregar</button></div></form></div>
+                <div className="animacion max-w-md mx-auto">
+                    <form onSubmit={agregarInventario} className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow-lg relative">
+                        <div className="flex justify-center">
+                            <FiWifi className="text-6xl text-green-600" />
+                        </div>
+                        <div className="text-center mb-4">
+                            <h2 className="text-2xl font-bold text-gray-800">Agregar Nuevo Dispositivo</h2>
+                            <p className="text-gray-500 text-sm">Llena los datos a continuación</p>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="nombre" 
+                            value={newItem.nombre} 
+                            onChange={handleAddChange} 
+                            placeholder="Nombre" 
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
+                            required 
+                        />
+                        <input 
+                            type="text" 
+                            name="modelo" 
+                            value={newItem.modelo} 
+                            onChange={handleAddChange} 
+                            placeholder="Modelo" 
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
+                            required 
+                        />
+                        <input 
+                            type="number" 
+                            name="cantidadTotal" 
+                            value={newItem.cantidadTotal} 
+                            onChange={handleAddChange} 
+                            placeholder="Cantidad de dispositivos" 
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
+                            min="1"
+                            required 
+                        />
+                        <div className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                            <p className="text-blue-700 text-sm">
+                                <strong>💡 Información:</strong> Después de completar estos datos, podrás ingresar los números de serie únicos para cada dispositivo.
+                            </p>
+                        </div>
+                        <div className="flex justify-end gap-3 mt-2">
+                            <button 
+                                type="button"
+                                onClick={cancelarAgregarDispositivo}
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 transition-colors cursor-pointer"
+                            >
+                                Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
             )}
 
             {/* Contenido de la pestaña: Activar/Desactivar */}
             {activeTab === 'activar' && (
                 loading ? (
-                    <p className="text-center text-white">Cargando...</p>) : filteredInventoryItems.length === 0 ? (<p className="text-center text-white text-lg">Sin dispositivos</p>) : (
+                    <p className="text-center text-white">Cargando...</p>) : groupedInventoryItems.length === 0 ? (<p className="text-center text-white text-lg">Sin dispositivos</p>) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {filteredInventoryItems.map(item => (
-                            <div key={item.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">
+                        {groupedInventoryItems.map(group => (
+                            <div key={group.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">
                                 <BiChip className="absolute inset-0 w-full h-full text-green-500/10 z-0" />
                                 <div className="relative z-10 flex flex-col h-full">
-                                    <h3 className="text-xl font-bold text-black mb-3 truncate">{item.nombre}</h3>
+                                    <h3 className="text-xl font-bold text-black mb-3 truncate">{group.displayName}</h3>
                                     <div className="space-y-1.5 text-sm text-black flex-grow">
-                                        <p><strong className="font-medium text-black">Modelo:</strong> {item.modelo}</p>
-                                        <p><strong className="font-medium text-black">No. Serie:</strong> {item.noSerie}</p>
+                                        <p><strong className="font-medium text-black">Modelo:</strong> {group.modelInfo}</p>
+                                        <p><strong className="font-medium text-black">Dispositivos únicos:</strong> {group.devices.length}</p>
+                                        {group.uniqueModels.length > 1 && (
+                                            <p><strong className="font-medium text-black">Modelos:</strong> {group.uniqueModels.join(', ')}</p>
+                                        )}
                                         <div className="flex justify-between pt-2">
-                                            <span><strong className="text-black">Total:</strong> {item.cantidadTotal}</span>
-                                            <span className="text-emerald-600"><strong className="font-bold">Activas:</strong> {item.cantidadActiva}</span>
-                                            <span className="text-yellow-600"><strong className="font-bold">Disponibles:</strong> {item.cantidadInactiva}</span>
+                                            <span><strong className="text-black">Total:</strong> {group.cantidadTotal}</span>
+                                            <span className="text-emerald-600"><strong className="font-bold">Activas:</strong> {group.cantidadActiva}</span>
+                                            <span className="text-yellow-600"><strong className="font-bold">Disponibles:</strong> {group.cantidadInactiva}</span>
                                         </div>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
-                                        <button onClick={() => handleActivateClick(item)} className="w-full bg-[#168F27] text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer" disabled={item.cantidadInactiva <= 0}>Activar</button>
-                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'inventory')}><FiEdit />Actualizar</button>
-                                        <button className="w-full bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => eliminarDispositivo(item.id)}>Eliminar</button>
+                                        <button onClick={() => handleActivateClick(group)} className="w-full bg-[#168F27] text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer" disabled={group.cantidadInactiva <= 0}>Activar</button>
+                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(group.devices[0], 'inventory')}><FiEdit />Actualizar</button>
                                     </div>
                                 </div>
                             </div>
@@ -173,6 +242,135 @@ const Inventory = () => {
                         <div className="flex justify-end gap-3 mt-4">
                             <button className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer" onClick={() => setUpdateModalOpen(false)}>Cancelar</button>
                             <button className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer" onClick={handleConfirmUpdate}>Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para ingresar números de serie */}
+            {isSerialModalOpen && tempDeviceData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">
+                            Números de Serie
+                        </h3>
+                        <div className="mb-4 p-3 bg-gray-100 rounded">
+                            <p className="text-sm text-gray-700">
+                                <strong>Dispositivo:</strong> {tempDeviceData.nombre}
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                <strong>Modelo:</strong> {tempDeviceData.modelo}
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                <strong>Cantidad:</strong> {tempDeviceData.cantidadTotal}
+                            </p>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Ingresa un número de serie único para cada dispositivo:
+                        </p>
+                        <div className="space-y-3 mb-6">
+                            {serialNumbers.map((serial, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-700 min-w-[80px]">
+                                        Dispositivo {index + 1}:
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={serial}
+                                        onChange={(e) => handleSerialChange(index, e.target.value)}
+                                        placeholder={`No. Serie ${index + 1}`}
+                                        className="flex-1 border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                        required
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer" 
+                                onClick={cancelarRegistroMultiple}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer" 
+                                onClick={confirmarRegistroMultiple}
+                            >
+                                Registrar Dispositivos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de selección de dispositivo específico */}
+            {isDeviceSelectionModalOpen && selectedDeviceGroup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">
+                            Seleccionar Dispositivo para Activar
+                        </h3>
+                        <div className="mb-4 p-3 bg-gray-100 rounded">
+                            <p className="text-sm text-gray-700">
+                                <strong>Dispositivo:</strong> {selectedDeviceGroup.displayName}
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                <strong>Modelo(s):</strong> {selectedDeviceGroup.modelInfo}
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                <strong>Dispositivos disponibles:</strong> {selectedDeviceGroup.devices.filter(d => d.cantidadInactiva > 0).length}
+                            </p>
+                        </div>
+                        
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Seleccionar por Número de Serie:
+                            </label>
+                            <select
+                                value={selectedDeviceSerial}
+                                onChange={(e) => setSelectedDeviceSerial(e.target.value)}
+                                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                required
+                            >
+                                <option value="">-- Seleccionar dispositivo --</option>
+                                {selectedDeviceGroup.devices
+                                    .filter(device => device.cantidadInactiva > 0)
+                                    .map(device => (
+                                    <option key={device.id} value={device.noSerie}>
+                                        {device.nombre} - {device.noSerie} (Disponibles: {device.cantidadInactiva})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Ubicación:
+                            </label>
+                            <input
+                                type="text"
+                                value={deviceLocation}
+                                onChange={(e) => setDeviceLocation(e.target.value)}
+                                placeholder="Ingresa la ubicación del dispositivo"
+                                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer" 
+                                onClick={cancelDeviceSelection}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer" 
+                                onClick={handleConfirmDeviceActivation}
+                                disabled={!selectedDeviceSerial || !deviceLocation.trim()}
+                            >
+                                Activar Dispositivo
+                            </button>
                         </div>
                     </div>
                 </div>
