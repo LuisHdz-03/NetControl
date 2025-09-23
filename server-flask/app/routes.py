@@ -9,6 +9,15 @@ from app.services.technicians_service import (
     update_tecnico, delete_tecnico
 )
 
+from app.services.failures_service import (
+    create_falla,
+    get_fallas,
+    get_falla,
+    update_falla,
+    delete_falla
+)
+
+
 main = Blueprint("main", __name__)
 
 
@@ -94,3 +103,34 @@ def delete_tecnico_route(tecnico_id):
     if not tecnico:
         return jsonify({"error": "Técnico no encontrado"}), 404
     return jsonify({"message": "Técnico eliminado correctamente"}), 200
+
+# ---------------------------
+
+
+# ----- Rutas de fallas
+@main.route("/failures", methods=["POST"])
+def create():
+    data = request.get_json()
+    result, status = create_falla(data)
+    return jsonify(result), status
+
+@main.route("/failures", methods=["GET"])
+def get_all():
+    result, status = get_fallas()
+    return jsonify(result), status
+
+@main.route("/failures/<int:falla_id>", methods=["GET"])
+def get_one(falla_id):
+    result, status = get_falla(falla_id)
+    return jsonify(result), status
+
+@main.route("/failures/<int:falla_id>", methods=["PUT"])
+def update(falla_id):
+    data = request.get_json()
+    result, status = update_falla(falla_id, data)
+    return jsonify(result), status
+
+@main.route("/failures/<int:falla_id>", methods=["DELETE"])
+def delete(falla_id):
+    result, status = delete_falla(falla_id)
+    return jsonify(result), status

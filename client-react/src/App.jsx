@@ -7,6 +7,7 @@ import Technicians from './pages/Technicians';
 import "./App.css"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Failures from './pages/Failures';
 
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -24,6 +25,7 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/technicians" element={<Technicians />} />
+            <Route path="/failures" element={<Failures />} />
           </Route>
         </Routes>
         <ToastContainer

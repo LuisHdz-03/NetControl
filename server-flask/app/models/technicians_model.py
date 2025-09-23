@@ -1,6 +1,5 @@
 from app import db
 
-# Tabla de Técnicos
 class Tecnicos(db.Model):
     __tablename__ = "tecnicos"
 
@@ -8,7 +7,9 @@ class Tecnicos(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     especialidad = db.Column(db.String(100))
     telefono = db.Column(db.String(20))
-    fallas = db.relationship("Fallas", backref="tecnico", lazy=True)
+
+    # Relación con fallas
+    fallas = db.relationship("Fallas", back_populates="tecnico", lazy=True)
 
     def serialize(self):
         return {
@@ -18,7 +19,6 @@ class Tecnicos(db.Model):
             "telefono": self.telefono
         }
 
-    #Serialización con las fallas asignadas
     def serialize_with_fallas(self):
         return {
             "id": self.id,

@@ -39,18 +39,17 @@ class UnidadActiva(db.Model):
     ubicacion = db.Column(db.String(100), nullable=False)
 
     inventario = db.relationship("Inventario", back_populates="unidades_activas")
+    fallas = db.relationship("Fallas", back_populates="unidad", lazy=True)  # <- relación inversa
 
     def serialize(self):
-        return {
-            "id": self.id,
-            "ubicacion": self.ubicacion
-        }
+        return {"id": self.id, "ubicacion": self.ubicacion}
 
     def serialize_with_details(self):
         return {
-            "id": self.id, 
+            "id": self.id,
             "ubicacion": self.ubicacion,
             "nombre": self.inventario.nombre,
             "modelo": self.inventario.modelo,
             "noSerie": self.inventario.noSerie
         }
+
