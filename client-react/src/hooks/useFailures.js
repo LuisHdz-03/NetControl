@@ -30,39 +30,46 @@ export function useFallas() {
 
     // --- Funciones de acción ---
     const add = async (falla) => {
-        try {
-            await addFalla(falla);
-            toast.success("Falla agregada correctamente");
-            await fetchData();
-        } catch (error) {
-            console.error("Error al agregar falla:", error);
-            toast.error("Error al agregar la falla");
-            throw error;
-        }
+        await toast.promise(
+            (async () => {
+                await addFalla(falla);
+                await fetchData();
+            })(),
+            {
+                pending: "Agregando falla...",
+                success: "Falla agregada correctamente",
+                error: "Error al agregar la falla"
+            }
+        );
     };
 
     const remove = async (id) => {
-        try {
-            await deleteFalla(id);
-            toast.info("Falla eliminada");
-            fetchData();
-        } catch (error) {
-            console.error("Error al eliminar falla:", error);
-            toast.error("Error al eliminar la falla");
-        }
+        await toast.promise(
+            (async () => {
+                await deleteFalla(id);
+                await fetchData();
+            })(),
+            {
+                pending: "Eliminando falla...",
+                success: "Falla eliminada",
+                error: "Error al eliminar la falla"
+            }
+        );
     };
 
     const update = async (id, data) => {
-        try {
-            await updateFalla(id, data);
-            toast.success("Falla actualizada");
-            fetchData();
-        } catch (error) {
-            console.error("Error al actualizar falla:", error);
-            toast.error("Error al actualizar la falla");
-        }
+        await toast.promise(
+            (async () => {
+                await updateFalla(id, data);
+                await fetchData();
+            })(),
+            {
+                pending: "Actualizando falla...",
+                success: "Falla actualizada",
+                error: "Error al actualizar la falla"
+            }
+        );
     };
 
-    // Devuelve datos y funciones
     return { fallas, loading, add, remove, update };
 }

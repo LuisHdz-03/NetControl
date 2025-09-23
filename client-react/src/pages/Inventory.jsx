@@ -101,7 +101,10 @@ const Inventory = () => {
                                             <p><strong className="font-medium text-black">Ubicación:</strong> {item.ubicacion}</p>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
-                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'activeUnit')}><FiEdit />Editar Ubicación</button>
+                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap"
+                                                onClick={() => openUpdateModal(item, 'activeUnit')}>
+                                                <FiEdit />Editar Ubicación
+                                            </button>
                                             <button className="w-full bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => handleDesactivar(item.id)}>Desactivar</button>
                                         </div>
                                     </div>
@@ -183,10 +186,10 @@ const Inventory = () => {
                         <span className="text-white">Cargando dispositivos...</span>
                     </div>
                 ) : groupedInventoryItems.length === 0 ? (<div className="text-center py-16">
-                        <BiWifiOff className="mx-auto text-6xl text-gray-500 mb-4" />
-                        <p className="text-center text-white text-xl">No se encontraron dispositivos.</p>
-                        <p className="text-gray-400">Agrega nuevos dispositivos.</p>
-                    </div>)  : (
+                    <BiWifiOff className="mx-auto text-6xl text-gray-500 mb-4" />
+                    <p className="text-center text-white text-xl">No se encontraron dispositivos.</p>
+                    <p className="text-gray-400">Agrega nuevos dispositivos.</p>
+                </div>) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {groupedInventoryItems.map(group => (
                             <div key={group.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">

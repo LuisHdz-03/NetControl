@@ -189,11 +189,10 @@ const Failures = () => {
                                         <p><strong>Estado:</strong> {getStatusBadge(falla.estado)}</p>
                                         <p><strong>Prioridad:</strong> <span className="capitalize">{falla.prioridad}</span></p>
                                     </div>
-                                    {/* --- CAMBIO AQUÍ --- Reduje el padding de px-3 py-2 a px-2 py-1 */}
                                     <div className="mt-6 grid grid-cols-3 gap-2">
-                                        <button className="col-span-1 bg-blue-600 text-white px-2 py-1 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer transition-colors" onClick={() => setEditingFalla(falla)}><FiEdit /></button>
-                                        <button className="col-span-1 bg-red-600 text-white px-2 py-1 rounded-lg hover:bg-red-700 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer transition-colors" onClick={() => remove(falla.id)}><FiX /></button>
-                                        <button disabled={falla.estado === 'resuelta'} onClick={() => handleAdvanceState(falla)} className="col-span-1 bg-purple-600 text-white px-2 py-1 rounded-lg hover:bg-purple-700 flex items-center justify-center gap-1 text-sm font-semibold cursor-pointer transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"><FiChevronRight /></button>
+                                        <button className="col-span-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer transition-colors" onClick={() => setEditingFalla(falla)}><FiEdit /></button>
+                                        <button className="col-span-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer transition-colors" onClick={() => remove(falla.id)}><FiX /></button>
+                                        <button disabled={falla.estado === 'resuelta'} onClick={() => handleAdvanceState(falla)} className="col-span-1 bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 flex items-center justify-center gap-1 text-sm font-semibold cursor-pointer transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"><FiChevronRight /></button>
                                     </div>
                                 </div>
                             ))}
