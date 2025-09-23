@@ -5,6 +5,7 @@ import {
     deleteFalla, 
     updateFalla 
 } from "../services/failures_service.js";
+import { toast } from "react-toastify";
 
 export function useFallas() {
     const [fallas, setFallas] = useState([]);
@@ -17,6 +18,7 @@ export function useFallas() {
             setFallas(data);
         } catch (error) {
             console.error("Error al obtener las fallas:", error);
+            toast.error("Error al obtener las fallas");
         } finally {
             setLoading(false);
         }
@@ -29,22 +31,36 @@ export function useFallas() {
     // --- Funciones de acción ---
     const add = async (falla) => {
         try {
-            const result = await addFalla(falla);
+            await addFalla(falla);
+            toast.success("Falla agregada correctamente");
             await fetchData();
         } catch (error) {
             console.error("Error al agregar falla:", error);
-            throw error; // Re-lanzar el error para que lo maneje el componente
+            toast.error("Error al agregar la falla");
+            throw error;
         }
     };
 
     const remove = async (id) => {
-        await deleteFalla(id);
-        fetchData();
+        try {
+            await deleteFalla(id);
+            toast.info("Falla eliminada");
+            fetchData();
+        } catch (error) {
+            console.error("Error al eliminar falla:", error);
+            toast.error("Error al eliminar la falla");
+        }
     };
 
     const update = async (id, data) => {
-        await updateFalla(id, data);
-        fetchData();
+        try {
+            await updateFalla(id, data);
+            toast.success("Falla actualizada");
+            fetchData();
+        } catch (error) {
+            console.error("Error al actualizar falla:", error);
+            toast.error("Error al actualizar la falla");
+        }
     };
 
     // Devuelve datos y funciones

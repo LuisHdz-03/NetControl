@@ -115,7 +115,7 @@ const Dispositivos = () => {
         <button
           onClick={() => scanNetwork()}
           disabled={scanning || loading}
-          className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+          className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
             scanning || loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-[#168F27] hover:bg-[#0f6b1f] text-white shadow-lg hover:shadow-xl"
@@ -199,7 +199,7 @@ const Dispositivos = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#168F27] focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#168F27] focus:border-transparent cursor-pointer"
             >
               <option value="">Todos los estados</option>
               <option value="active">Activos</option>
@@ -209,7 +209,7 @@ const Dispositivos = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#168F27] focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#168F27] focus:border-transparent cursor-pointer"
             >
               <option value="">Todos los tipos</option>
               <option value="router">Router</option>
@@ -345,7 +345,7 @@ const Dispositivos = () => {
             <button
               onClick={() => scanNetwork()}
               disabled={scanning}
-              className="bg-[#168F27] hover:bg-[#0f6b1f] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+              className="bg-[#168F27] hover:bg-[#0f6b1f] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 cursor-pointer"
             >
               Escanear Red
             </button>

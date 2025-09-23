@@ -79,7 +79,7 @@ const SpeedTest = () => {
 
         {/* Botón de iniciar prueba */}
         <button 
-          className={`flex items-center justify-center py-2 px-4 rounded mt-auto transition-colors ${
+          className={`flex items-center justify-center py-2 px-4 rounded mt-auto transition-colors cursor-pointer ${
             isRunning || loading
               ? 'bg-gray-400 cursor-not-allowed' 
               : 'bg-blue-600 hover:bg-blue-700'

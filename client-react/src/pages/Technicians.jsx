@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiSearch, FiX, FiUser, FiEdit } from 'react-icons/fi';
+import { FiSearch, FiX, FiUser, FiEdit, FiRefreshCw, FiUserX } from 'react-icons/fi';
 import { useTecnicos } from '../hooks/useTechnicians.js';
 
 const Technicians = () => {
@@ -88,10 +88,15 @@ const Technicians = () => {
                     </div>
 
                     {loading ? (
-                        <p className="text-center text-white">Cargando...</p>
-                    ) : filteredTecnicos.length === 0 ? (
-                        <p className="text-center text-white text-lg">No hay técnicos registrados</p>
-                    ) : (
+                        <div className="flex justify-center items-center py-10">
+                            <FiRefreshCw className="animate-spin h-8 w-8 text-[#168F27] mr-2" />
+                            <span className="text-white">Cargando técnicos...</span>
+                        </div>
+                    ) : filteredTecnicos.length === 0 ? (<div className="text-center py-16">
+                        <FiUserX className="mx-auto text-6xl text-gray-500 mb-4" />
+                        <p className="text-center text-white text-xl">No se encontraron técnicos.</p>
+                        <p className="text-gray-400">Intenta con otra búsqueda o registra técnicos.</p>
+                    </div>) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {filteredTecnicos.map(tecnico => (
                                 <div key={tecnico.id} className="bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-green-500/40 hover:shadow-lg hover:shadow-green-500/10 hover:-translate-y-1">
@@ -142,8 +147,8 @@ const Technicians = () => {
                             <input type="text" name="especialidad" value={selectedTecnico.especialidad} onChange={handleUpdateChange} placeholder="Especialidad" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required />
                             <input type="text" name="telefono" value={selectedTecnico.telefono} onChange={handleUpdateChange} placeholder="Teléfono" className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" required />
                             <div className="flex justify-end gap-2 mt-2">
-                                <button type="button" onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">Cancelar</button>
-                                <button type="submit" className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">Actualizar</button>
+                                <button type="button" onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer">Cancelar</button>
+                                <button type="submit" className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 transition-colors cursor-pointer">Actualizar</button>
                             </div>
                         </form>
                     </div>

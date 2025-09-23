@@ -1,6 +1,6 @@
 import React from 'react';
-import { FiWifi, FiCheckCircle, FiSearch, FiX, FiEdit } from 'react-icons/fi';
-import { BiChip } from "react-icons/bi";
+import { FiWifi, FiCheckCircle, FiSearch, FiX, FiEdit, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
+import { BiChip, BiWifiOff } from "react-icons/bi";
 import { useInventoryLogic } from "../hooks/useInventoryLogic.js";
 
 const Inventory = () => {
@@ -73,7 +73,16 @@ const Inventory = () => {
                             <button className="bg-[#168F27] text-white px-4 py-2 rounded-lg hover:bg-[#12701f] flex items-center gap-2 cursor-pointer" onClick={() => setSearch('')}><FiX className="text-lg" />Limpiar</button>
                         </div>
                     </div>
-                    {loading ? (<p className="text-center text-white">Cargando...</p>) : filteredActiveUnits.length === 0 ? (<p className="text-center text-white text-lg">No hay dispositivos activados</p>) : (
+                    {loading ? (
+                        <div className="flex justify-center items-center py-10">
+                            <FiRefreshCw className="animate-spin h-8 w-8 text-[#168F27] mr-2" />
+                            <span className="text-white">Cargando dispositivos activos...</span>
+                        </div>
+                    ) : filteredActiveUnits.length === 0 ? (<div className="text-center py-16">
+                        <BiWifiOff className="mx-auto text-6xl text-gray-500 mb-4" />
+                        <p className="text-center text-white text-xl">No se encontraron dispositivos activos.</p>
+                        <p className="text-gray-400">Intenta con otra búsqueda o activa un dispositivo.</p>
+                    </div>) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {filteredActiveUnits.map(item => (
                                 <div key={item.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-green-500/40 hover:shadow-lg hover:shadow-green-500/10 hover:-translate-y-1">
@@ -114,33 +123,33 @@ const Inventory = () => {
                             <h2 className="text-2xl font-bold text-gray-800">Agregar Nuevo Dispositivo</h2>
                             <p className="text-gray-500 text-sm">Llena los datos a continuación</p>
                         </div>
-                        <input 
-                            type="text" 
-                            name="nombre" 
-                            value={newItem.nombre} 
-                            onChange={handleAddChange} 
-                            placeholder="Nombre" 
-                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
-                            required 
+                        <input
+                            type="text"
+                            name="nombre"
+                            value={newItem.nombre}
+                            onChange={handleAddChange}
+                            placeholder="Nombre"
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                            required
                         />
-                        <input 
-                            type="text" 
-                            name="modelo" 
-                            value={newItem.modelo} 
-                            onChange={handleAddChange} 
-                            placeholder="Modelo" 
-                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
-                            required 
+                        <input
+                            type="text"
+                            name="modelo"
+                            value={newItem.modelo}
+                            onChange={handleAddChange}
+                            placeholder="Modelo"
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                            required
                         />
-                        <input 
-                            type="number" 
-                            name="cantidadTotal" 
-                            value={newItem.cantidadTotal} 
-                            onChange={handleAddChange} 
-                            placeholder="Cantidad de dispositivos" 
-                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]" 
+                        <input
+                            type="number"
+                            name="cantidadTotal"
+                            value={newItem.cantidadTotal}
+                            onChange={handleAddChange}
+                            placeholder="Cantidad de dispositivos"
+                            className="border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
                             min="1"
-                            required 
+                            required
                         />
                         <div className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
                             <p className="text-blue-700 text-sm">
@@ -148,15 +157,15 @@ const Inventory = () => {
                             </p>
                         </div>
                         <div className="flex justify-end gap-3 mt-2">
-                            <button 
+                            <button
                                 type="button"
                                 onClick={cancelarAgregarDispositivo}
                                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer"
                             >
                                 Cancelar
                             </button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 transition-colors cursor-pointer"
                             >
                                 Continuar
@@ -169,7 +178,15 @@ const Inventory = () => {
             {/* Contenido de la pestaña: Activar/Desactivar */}
             {activeTab === 'activar' && (
                 loading ? (
-                    <p className="text-center text-white">Cargando...</p>) : groupedInventoryItems.length === 0 ? (<p className="text-center text-white text-lg">Sin dispositivos</p>) : (
+                    <div className="flex justify-center items-center py-10">
+                        <FiRefreshCw className="animate-spin h-8 w-8 text-[#168F27] mr-2" />
+                        <span className="text-white">Cargando dispositivos...</span>
+                    </div>
+                ) : groupedInventoryItems.length === 0 ? (<div className="text-center py-16">
+                        <BiWifiOff className="mx-auto text-6xl text-gray-500 mb-4" />
+                        <p className="text-center text-white text-xl">No se encontraron dispositivos.</p>
+                        <p className="text-gray-400">Agrega nuevos dispositivos.</p>
+                    </div>)  : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {groupedInventoryItems.map(group => (
                             <div key={group.id} className="relative overflow-hidden bg-gray-100 border border-gray-700 rounded-xl p-5 transition-all duration-300 ease-in-out hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1">
@@ -289,14 +306,14 @@ const Inventory = () => {
                             ))}
                         </div>
                         <div className="flex justify-end gap-3">
-                            <button 
-                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer" 
+                            <button
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
                                 onClick={cancelarRegistroMultiple}
                             >
                                 Cancelar
                             </button>
-                            <button 
-                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer" 
+                            <button
+                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
                                 onClick={confirmarRegistroMultiple}
                             >
                                 Registrar Dispositivos
@@ -324,7 +341,7 @@ const Inventory = () => {
                                 <strong>Dispositivos disponibles:</strong> {selectedDeviceGroup.devices.filter(d => d.cantidadInactiva > 0).length}
                             </p>
                         </div>
-                        
+
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Seleccionar por Número de Serie:
@@ -339,10 +356,10 @@ const Inventory = () => {
                                 {selectedDeviceGroup.devices
                                     .filter(device => device.cantidadInactiva > 0)
                                     .map(device => (
-                                    <option key={device.id} value={device.noSerie}>
-                                        {device.nombre} - {device.noSerie} (Disponibles: {device.cantidadInactiva})
-                                    </option>
-                                ))}
+                                        <option key={device.id} value={device.noSerie}>
+                                            {device.nombre} - {device.noSerie} (Disponibles: {device.cantidadInactiva})
+                                        </option>
+                                    ))}
                             </select>
                         </div>
 
@@ -361,14 +378,14 @@ const Inventory = () => {
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            <button 
-                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer" 
+                            <button
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
                                 onClick={cancelDeviceSelection}
                             >
                                 Cancelar
                             </button>
-                            <button 
-                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer" 
+                            <button
+                                className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
                                 onClick={handleConfirmDeviceActivation}
                                 disabled={!selectedDeviceSerial || !deviceLocation.trim()}
                             >
@@ -480,14 +497,14 @@ const Inventory = () => {
                         )}
 
                         <div className="flex justify-end gap-3">
-                            <button 
+                            <button
                                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
                                 onClick={closeAdvancedUpdateModal}
                             >
                                 Cancelar
                             </button>
                             {canEditDevice && (
-                                <button 
+                                <button
                                     className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
                                     onClick={handleConfirmAdvancedUpdate}
                                 >
