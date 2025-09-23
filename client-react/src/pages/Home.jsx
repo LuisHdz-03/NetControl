@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SpeedTest from '../components/SpeedTest';
 import SpeedTestChart from '../components/SpeedTestChart';
 import NetworkDetailsModal from '../components/NetworkDetailsModal';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useFallas } from '../hooks/useFailures';
+import useDevices from '../hooks/useDevices';
 import { FiRefreshCw } from 'react-icons/fi';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { 
     networkStatus, 
@@ -16,10 +20,20 @@ const Home = () => {
     getStatusColor, 
     getStatusIcon 
   } = useNetworkStatus();
+  const { fallas } = useFallas();
+  const { devices, stats } = useDevices();
 
   const handleShowDetails = async () => {
     setIsModalOpen(true);
     await fetchNetworkDetails();
+  };
+
+  const handleNavigateToDevices = () => {
+    navigate('/dispositivos');
+  };
+
+  const handleNavigateToFailures = () => {
+    navigate('/failures');
   };
 
   return (
@@ -79,13 +93,16 @@ const Home = () => {
           <div className="bg-white shadow-lg rounded-lg w-full max-w-sm flex flex-col">
             <div className="p-6 text-center flex flex-col flex-1">
               <h5 className="text-xl font-semibold mb-2">MANTENIMIENTO</h5>
-              <p className="text-red-600 mb-4" id="numero-fallas">Cargando...</p>
-              <a 
-                href="Fallas.html" 
-                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900"
+              <div className="mb-4">
+                <p className="text-3xl font-bold text-red-600">{fallas?.length || 0}</p>
+                <p className="text-gray-600 text-sm">Fallas registradas</p>
+              </div>
+              <button 
+                onClick={handleNavigateToFailures}
+                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900 transition-colors cursor-pointer"
               >
-                Detalles
-              </a>
+                Ver Fallas
+              </button>
             </div>
           </div>
         </div>
@@ -95,13 +112,16 @@ const Home = () => {
           <div className="bg-white shadow-lg rounded-lg w-full max-w-sm flex flex-col">
             <div className="p-6 text-center flex flex-col flex-1">
               <h5 className="text-xl font-semibold mb-2">DISPOSITIVOS CONECTADOS</h5>
-              <p className="mb-4"><strong id="dispositivos-conectados">Espere...</strong></p>
-              <a 
-                href="Dispositivos.html" 
-                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900"
+              <div className="mb-4">
+                <p className="text-3xl font-bold text-blue-600">{stats?.active || 0}</p>
+                <p className="text-gray-600 text-sm">de {stats?.total || 0} dispositivos</p>
+              </div>
+              <button 
+                onClick={handleNavigateToDevices}
+                className="bg-gray-800 text-white py-2 px-4 rounded mt-auto hover:bg-gray-900 transition-colors cursor-pointer"
               >
-                Detalles
-              </a>
+                Ver Dispositivos
+              </button>
             </div>
           </div>
         </div>

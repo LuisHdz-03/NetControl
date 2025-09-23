@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Failures from './pages/Failures';
 import Dispositivos from "./pages/Dispositivos";
+import Documentation from './pages/Documentation';
 
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/technicians" element={<Technicians />} />
             <Route path="/failures" element={<Failures />} />
+            <Route path="/documentation" element={<Documentation />} />
           </Route>
         </Routes>
         <ToastContainer

@@ -38,6 +38,14 @@ export const useInventoryLogic = () => {
     const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
+    // Estados para selección en cascada (Actualizar dispositivo)
+    const [isAdvancedUpdateModalOpen, setAdvancedUpdateModalOpen] = useState(false);
+    const [selectedDeviceName, setSelectedDeviceName] = useState('');
+    const [availableSerials, setAvailableSerials] = useState([]);
+    const [selectedSerialForEdit, setSelectedSerialForEdit] = useState('');
+    const [canEditDevice, setCanEditDevice] = useState(false);
+    const [deviceToEdit, setDeviceToEdit] = useState(null);
+
     // --- Manejadores de Formularios ---
     const handleAddChange = (e) => setNewItem({ ...newItem, [e.target.name]: e.target.value });
 
@@ -274,6 +282,107 @@ export const useInventoryLogic = () => {
         }
     };
 
+    // --- Funciones para selección en cascada (Actualizar dispositivo) ---
+    const openAdvancedUpdateModal = () => {
+        setAdvancedUpdateModalOpen(true);
+        setSelectedDeviceName('');
+        setSelectedSerialForEdit('');
+        setAvailableSerials([]);
+        setCanEditDevice(false);
+        setDeviceToEdit(null);
+    };
+
+    const closeAdvancedUpdateModal = () => {
+        setAdvancedUpdateModalOpen(false);
+        setSelectedDeviceName('');
+        setSelectedSerialForEdit('');
+        setAvailableSerials([]);
+        setCanEditDevice(false);
+        setDeviceToEdit(null);
+    };
+
+    const handleDeviceNameChange = (deviceName) => {
+        setSelectedDeviceName(deviceName);
+        setSelectedSerialForEdit('');
+        setCanEditDevice(false);
+        setDeviceToEdit(null);
+        
+        if (deviceName) {
+            // Filtrar números de serie disponibles para este nombre de dispositivo
+            const serialsForDevice = items
+                .filter(item => item.nombre === deviceName)
+                .map(item => item.noSerie);
+            setAvailableSerials(serialsForDevice);
+        } else {
+            setAvailableSerials([]);
+        }
+    };
+
+    const handleSerialNumberChange = (serialNumber) => {
+        setSelectedSerialForEdit(serialNumber);
+        
+        if (selectedDeviceName && serialNumber) {
+            // Buscar el dispositivo específico que coincida con nombre y número de serie
+            const device = items.find(item => 
+                item.nombre === selectedDeviceName && item.noSerie === serialNumber
+            );
+            
+            if (device) {
+                setDeviceToEdit(device);
+                setCanEditDevice(true);
+            } else {
+                setDeviceToEdit(null);
+                setCanEditDevice(false);
+            }
+        } else {
+            setDeviceToEdit(null);
+            setCanEditDevice(false);
+        }
+    };
+
+    const handleConfirmAdvancedUpdate = async () => {
+        if (!canEditDevice || !deviceToEdit) {
+            toast.error("Selecciona un dispositivo válido para editar");
+            return;
+        }
+
+        const { id, ...data } = deviceToEdit;
+
+        try {
+            const inventoryData = {
+                nombre: data.nombre,
+                modelo: data.modelo,
+                noSerie: data.noSerie,
+                cantidadTotal: data.cantidadTotal
+            };
+
+            await toast.promise(
+                update(id, inventoryData),
+                {
+                    pending: "Actualizando dispositivo...",
+                    success: "¡Actualización realizada con éxito!",
+                    error: "Error al actualizar"
+                }
+            );
+        } catch (error) {
+            toast.error("Error desconocido");
+        } finally {
+            setAdvancedUpdateModalOpen(false);
+            setSelectedDeviceName('');
+            setSelectedSerialForEdit('');
+            setAvailableSerials([]);
+            setCanEditDevice(false);
+            setDeviceToEdit(null);
+        }
+    };
+
+    const handleAdvancedUpdateChange = (e) => {
+        if (!deviceToEdit) return;
+        setDeviceToEdit({ ...deviceToEdit, [e.target.name]: e.target.value });
+    };
+
+
+
     const handleDesactivar = async (id) => {
         await toast.promise(
             deactivate(id),
@@ -386,6 +495,21 @@ export const useInventoryLogic = () => {
         setDeviceLocation,
         // Funciones para selección de dispositivo
         handleConfirmDeviceActivation,
-        cancelDeviceSelection
+        cancelDeviceSelection,
+
+        // Estados para selección cascada en edición
+        isAdvancedUpdateModalOpen,
+        selectedDeviceName,
+        availableSerials,
+        selectedSerialForEdit,
+        canEditDevice,
+        deviceToEdit,
+        // Funciones para selección cascada en edición
+        openAdvancedUpdateModal,
+        closeAdvancedUpdateModal,
+        handleDeviceNameChange,
+        handleSerialNumberChange,
+        handleConfirmAdvancedUpdate,
+        handleAdvancedUpdateChange
     };
 };

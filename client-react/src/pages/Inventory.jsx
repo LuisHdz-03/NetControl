@@ -22,7 +22,10 @@ const Inventory = () => {
         // Props para dispositivos agrupados y selección
         groupedInventoryItems, isDeviceSelectionModalOpen, selectedDeviceGroup,
         selectedDeviceSerial, setSelectedDeviceSerial, deviceLocation, setDeviceLocation,
-        handleConfirmDeviceActivation, cancelDeviceSelection
+        handleConfirmDeviceActivation, cancelDeviceSelection,
+        // Props para selección cascada en edición
+        isAdvancedUpdateModalOpen, selectedDeviceName, availableSerials, selectedSerialForEdit, canEditDevice, deviceToEdit,
+        openAdvancedUpdateModal, closeAdvancedUpdateModal, handleDeviceNameChange, handleSerialNumberChange, handleConfirmAdvancedUpdate, handleAdvancedUpdateChange
     } = useInventoryLogic();
 
     return (
@@ -89,7 +92,7 @@ const Inventory = () => {
                                             <p><strong className="font-medium text-black">Ubicación:</strong> {item.ubicacion}</p>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
-                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'activeUnit')}><FiEdit />Actualizar</button>
+                                            <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(item, 'activeUnit')}><FiEdit />Editar Ubicación</button>
                                             <button className="w-full bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm font-semibold transition-colors cursor-pointer" onClick={() => handleDesactivar(item.id)}>Desactivar</button>
                                         </div>
                                     </div>
@@ -187,7 +190,7 @@ const Inventory = () => {
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-2">
                                         <button onClick={() => handleActivateClick(group)} className="w-full bg-[#168F27] text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer" disabled={group.cantidadInactiva <= 0}>Activar</button>
-                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={() => openUpdateModal(group.devices[0], 'inventory')}><FiEdit />Actualizar</button>
+                                        <button className="w-full bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1" onClick={openAdvancedUpdateModal}><FiEdit />Editar</button>
                                     </div>
                                 </div>
                             </div>
@@ -216,7 +219,7 @@ const Inventory = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
                         <button className="absolute top-2 right-2 text-black hover:text-gray-800 text-2xl cursor-pointer" onClick={() => setUpdateModalOpen(false)}>&times;</button>
-                        <h2 className="text-xl font-bold mb-4">Actualizar: {editingItem?.nombre}</h2>
+                        <h2 className="text-xl font-bold mb-4">Editar: {editingItem?.nombre}</h2>
                         {editingItem?.type === 'inventory' ? (
                             <div className="flex flex-col gap-1">
                                 <label htmlFor="nombre-update" className="block text-sm font-medium text-black ">
@@ -371,6 +374,126 @@ const Inventory = () => {
                             >
                                 Activar Dispositivo
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Selección Cascada para Edición */}
+            {isAdvancedUpdateModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">
+                            Editar Dispositivo
+                        </h3>
+
+                        {/* Paso 1: Seleccionar nombre del dispositivo */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                1. Seleccionar Dispositivo:
+                            </label>
+                            <select
+                                value={selectedDeviceName || ''}
+                                onChange={(e) => handleDeviceNameChange(e.target.value)}
+                                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                            >
+                                <option value="">Seleccionar dispositivo...</option>
+                                {Array.from(new Set(groupedInventoryItems.map(group => group.nombre))).map(nombre => (
+                                    <option key={nombre} value={nombre}>{nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Paso 2: Seleccionar número de serie */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                2. Seleccionar Número de Serie:
+                            </label>
+                            <select
+                                value={selectedSerialForEdit || ''}
+                                onChange={(e) => handleSerialNumberChange(e.target.value)}
+                                disabled={!selectedDeviceName}
+                                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            >
+                                <option value="">Seleccionar número de serie...</option>
+                                {availableSerials.map(serial => (
+                                    <option key={serial} value={serial}>{serial}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Paso 3: Mostrar formulario de edición si se puede editar */}
+                        {canEditDevice && deviceToEdit && (
+                            <div className="mb-4 p-4 bg-gray-50 rounded">
+                                <h4 className="text-md font-semibold text-gray-800 mb-3">3. Datos del Dispositivo:</h4>
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Nombre:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="nombre"
+                                            value={deviceToEdit.nombre || ''}
+                                            onChange={handleAdvancedUpdateChange}
+                                            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Modelo:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="modelo"
+                                            value={deviceToEdit.modelo || ''}
+                                            onChange={handleAdvancedUpdateChange}
+                                            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Número de Serie:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="noSerie"
+                                            value={deviceToEdit.noSerie || ''}
+                                            onChange={handleAdvancedUpdateChange}
+                                            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Ubicación:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="ubicacion"
+                                            value={deviceToEdit.ubicacion || ''}
+                                            onChange={handleAdvancedUpdateChange}
+                                            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#168F27]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
+                                onClick={closeAdvancedUpdateModal}
+                            >
+                                Cancelar
+                            </button>
+                            {canEditDevice && (
+                                <button 
+                                    className="bg-[#168F27] text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer"
+                                    onClick={handleConfirmAdvancedUpdate}
+                                >
+                                    Guardar Cambios
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -18,6 +18,11 @@ from app.services.network_devices_service import (
 from app.services.failures_service import (
     create_falla, get_fallas, get_falla, update_falla, delete_falla
 )
+from app.services.documentation_service import (
+    create_documentation_entry, get_all_documentation_entries, get_documentation_entry,
+    update_documentation_entry, update_documentation_entry_with_files, delete_documentation_entry, 
+    get_file, delete_file, get_statistics
+)
 
 main = Blueprint("main", __name__)
 
@@ -408,4 +413,105 @@ def update_failure(falla_id):
 @main.route("/failures/<int:falla_id>", methods=["DELETE"])
 def delete_failure(falla_id):
     result, status = delete_falla(falla_id)
+    return jsonify(result), status
+
+
+# ----- Rutas de Documentación -----
+
+@main.route("/documentation", methods=["POST"])
+def create_documentation():
+    """Crea una nueva entrada de documentación con archivos opcionales"""
+    try:
+        data = request.form.to_dict()  # Para formularios con archivos
+        files = request.files.getlist('archivos')  # Lista de archivos
+        
+        result, status = create_documentation_entry(data, files if files else None)
+        return jsonify(result), status
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@main.route("/documentation", methods=["GET"])
+def get_documentation():
+    """Obtiene todas las entradas de documentación con filtros opcionales"""
+    tipo = request.args.get('tipo')  # 'historial', 'proximo', 'configuracion'
+    categoria = request.args.get('categoria')
+    
+    result, status = get_all_documentation_entries(tipo, categoria)
+    return jsonify(result), status
+
+@main.route("/documentation/<int:entry_id>", methods=["GET"])
+def get_documentation_detail(entry_id):
+    """Obtiene una entrada específica de documentación"""
+    result, status = get_documentation_entry(entry_id)
+    return jsonify(result), status
+
+@main.route("/documentation/<int:entry_id>", methods=["PUT"])
+def update_documentation(entry_id):
+    """Actualiza una entrada de documentación"""
+    try:
+        # Verificar si es una actualización con archivos (multipart/form-data) o solo JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # Actualización con posibles archivos nuevos
+            data = request.form.to_dict()
+            files = request.files.getlist('archivos')
+            result, status = update_documentation_entry_with_files(entry_id, data, files if files else None)
+        else:
+            # Actualización solo de datos (JSON)
+            data = request.get_json()
+            result, status = update_documentation_entry(entry_id, data)
+        
+        return jsonify(result), status
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@main.route("/documentation/<int:entry_id>", methods=["DELETE"])
+def delete_documentation(entry_id):
+    """Elimina una entrada de documentación"""
+    result, status = delete_documentation_entry(entry_id)
+    return jsonify(result), status
+
+@main.route("/documentation/files/<int:file_id>", methods=["GET"])
+def download_file(file_id):
+    """Descarga un archivo específico"""
+    from flask import send_file
+    from app.models.documentation_model import DocumentationFile
+    import os
+    
+    try:
+        file_record = DocumentationFile.query.get(file_id)
+        if not file_record:
+            return jsonify({"error": "Archivo no encontrado"}), 404
+        
+        # La ruta ya es absoluta en la base de datos
+        file_path = file_record.ruta_archivo
+        
+        print(f"Ruta del archivo: {file_path}")
+        print(f"Archivo existe: {os.path.exists(file_path)}")
+        
+        # Verificar que el archivo existe físicamente
+        if not os.path.exists(file_path):
+            return jsonify({"error": f"Archivo no encontrado en el sistema: {file_path}"}), 404
+        
+        return send_file(
+            file_path, 
+            as_attachment=True,
+            download_name=file_record.nombre_original
+        )
+        
+    except Exception as e:
+        print(f"Error en descarga de archivo: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@main.route("/documentation/files/<int:file_id>", methods=["DELETE"])
+def delete_documentation_file(file_id):
+    """Elimina un archivo específico"""
+    result, status = delete_file(file_id)
+    return jsonify(result), status
+
+@main.route("/documentation/stats", methods=["GET"])
+def get_documentation_stats():
+    """Obtiene estadísticas de documentación"""
+    result, status = get_statistics()
     return jsonify(result), status

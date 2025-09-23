@@ -7,6 +7,7 @@ import {
   FiArchive,
   FiUsers,
   FiLogOut,
+  FiFileText,
 } from "react-icons/fi";
 import logoImage from "../assets/logo.jpg";
 
@@ -138,6 +139,20 @@ const Sidebar = () => {
           >
             <FiUsers className="h-6 w-6 mr-2" />
             Técnicos
+          </NavLink>
+
+          <NavLink
+            to="/documentation"
+            className={({ isActive }) =>
+              `px-4 py-2 rounded-lg flex items-center transition-colors duration-200 ${
+                isActive
+                  ? "bg-[#168F27] text-white font-bold"
+                  : "text-[#B0B0B0] hover:bg-[#168F27] hover:text-white"
+              }`
+            }
+          >
+            <FiFileText className="h-6 w-6 mr-2" />
+            Documentación
           </NavLink>
 
           <NavLink
